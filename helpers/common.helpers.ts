@@ -1,10 +1,16 @@
 import { randomBytes } from 'crypto';
+import { HttpException, HttpStatus } from '@nestjs/common';
 
-export function generateTrxId(prefix = 'TID'): string {
-  // pakai timestamp (ms sejak epoch)
-  //   const timestamp = Date.now();
+interface ApiResponse<T = any> {
+  statusCode: number;
+  message: string;
+  data?: T;
+  trxId?: string;
+}
 
-  // format jamtgltahun → ddMMyyyyHHmmss
+/** ----------------------------- Public Function ----------------------------- */
+
+function generateTrxId(prefix = 'ITIL'): string {
   const now = new Date();
   const pad = (n: number) => n.toString().padStart(2, '0');
   const dateStr = [
@@ -22,3 +28,52 @@ export function generateTrxId(prefix = 'TID'): string {
   const random = randomBytes(5).toString('hex').toUpperCase().slice(0, 5);
   return `${prefix}${mode}${dateStr}${random}`;
 }
+
+function successResponse<T = any>(data: T, message = 'Retrieve data success', statusCode = 200): ApiResponse<T> {
+  return {
+    statusCode,
+    message,
+    data,
+    trxId: generateTrxId(),
+  };
+}
+
+function errorResponse(message = 'Error', statusCode = 400, error = true, extra?: Record<string, any>) {
+  return {
+    statusCode,
+    message,
+    error,
+    trxId: generateTrxId(),
+    ...(extra || {}),
+    timestamp: new Date().toISOString(),
+  };
+}
+
+function paginateResponse<T = any>(
+  data: T[],
+  total: number,
+  page = 1,
+  limit = 10,
+  message = 'Success',
+  statusCode = 200,
+) {
+  const totalPages = Math.ceil(total / limit);
+  return {
+    statusCode,
+    message,
+    data,
+    meta: {
+      total,
+      page,
+      limit,
+      totalPages,
+    },
+    trxId: generateTrxId(),
+  };
+}
+
+function throwError(message = 'Bad Request', statusCode: number = HttpStatus.BAD_REQUEST): never {
+  throw new HttpException({ message, trxId: generateTrxId() }, statusCode);
+}
+
+export { generateTrxId, ApiResponse, successResponse, errorResponse, paginateResponse, throwError };
