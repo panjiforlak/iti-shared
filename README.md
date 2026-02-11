@@ -1,4 +1,4 @@
-# iti-shared
+# SHARED
 
 shared/
 ├── http/
@@ -27,5 +27,10 @@ example: git submodule add https://github.com/panjiforlak/iti-shared.git src/com
 #check status sub module
 git submodule status
 
-#pull
+#pull klo belum pernah
 git submodule update --init --recursive
+
+#pull
+git pull --recurse-submodules
+git submodule update --remote
+
