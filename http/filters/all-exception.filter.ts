@@ -3,27 +3,33 @@ import { Request, Response } from 'express';
 import { generateTrxId } from 'src/common/shared/helpers/common.helpers';
 import { ThrottlerException } from '@nestjs/throttler';
 
-@Catch()
+@Catch(HttpException)
 export class AllExceptionsFilter implements ExceptionFilter {
-  catch(exception: unknown, host: ArgumentsHost) {
+  catch(exception: HttpException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
-    const request = ctx.getRequest<Request>();
     const response = ctx.getResponse<Response>();
+    const request = ctx.getRequest<Request>();
 
-    const status = exception instanceof HttpException ? exception.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
-
-    let payload: any = { message: 'Internal server error' };
-
-    if (exception instanceof HttpException) {
-      const res = exception.getResponse();
-      payload = typeof res === 'string' ? { message: res } : res;
-    }
+    const status = exception.getStatus();
+    const res = exception.getResponse();
 
     const trxId = (request.headers['x-transaction-id'] as string) || generateTrxId();
 
+    // 👇 HANDLE THROTTLER DI SINI
+    if (exception instanceof ThrottlerException) {
+      return response.status(429).json({
+        statusCode: 429,
+        message: 'Too Many Requests',
+        data: { error: true },
+        trxId,
+      });
+    }
+
+    const payload = typeof res === 'string' ? { message: res } : (res as Record<string, any>);
+
     response.status(status).json({
       statusCode: payload.statusCode || status,
-      message: payload.message,
+      message: payload.message || 'Error',
       data: payload.data || { error: true },
       trxId,
     });

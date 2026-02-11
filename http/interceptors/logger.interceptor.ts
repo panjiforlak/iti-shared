@@ -20,16 +20,18 @@ export class LoggerInterceptor implements NestInterceptor {
 
     return next.handle().pipe(
       tap(() => {
-        this.logger.info(
-          {
-            traceId,
-            method: req.method,
-            path: req.originalUrl,
-            statusCode: res.statusCode,
-            responseTime: `${Date.now() - start}ms`,
-          },
-          'Successfully',
-        );
+        if (res.statusCode < 400) {
+          this.logger.info(
+            {
+              traceId,
+              method: req.method,
+              path: req.originalUrl,
+              statusCode: res.statusCode,
+              responseTime: `${Date.now() - start}ms`,
+            },
+            'REQUEST_SUCCESS',
+          );
+        }
 
         if (process.env.DEBUG === 'yes') {
           this.logger.debug({
@@ -40,6 +42,7 @@ export class LoggerInterceptor implements NestInterceptor {
           });
         }
       }),
+
       catchError((error) => {
         const statusCode = error instanceof HttpException ? error.getStatus() : HttpStatus.INTERNAL_SERVER_ERROR;
 
