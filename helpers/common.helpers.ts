@@ -47,11 +47,20 @@ export function successResponse<T = any>(
   data: T,
   message = 'Retrieve data success',
   statusCode = HttpStatus.OK,
+  tz?: string,
 ): ApiResponse<T> {
+  const timestamp = new Date().toISOString();
   return {
     statusCode,
     message,
     data,
+    timestamp,
+    ...(tz && {
+      timezone: {
+        timeLocal: toLocalISOString(timestamp, tz.toUpperCase()),
+        offsetZone: tz.toUpperCase(),
+      },
+    }),
   };
 }
 
@@ -122,4 +131,18 @@ export function toCustomUpperCase(text: string): string {
     .replace(/([a-z0-9])([A-Z])/g, '$1_$2')
     .replace(/[\s-]+/g, '_')
     .toUpperCase();
+}
+
+export function gmtToOffset(tz: string): number {
+  const match = tz.match(/^GMT([+-]\d{1,2})$/);
+  if (!match) return 0; // fallback UTC
+  return parseInt(match[1], 10);
+}
+
+export function toLocalISOString(utcIso: string, tz: string): string {
+  const offset = gmtToOffset(tz);
+  const utcDate = new Date(utcIso);
+  const local = new Date(utcDate.getTime() + offset * 60 * 60 * 1000);
+
+  return local.toISOString().replace('T', ' ').substring(0, 19);
 }
