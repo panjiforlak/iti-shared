@@ -57,8 +57,8 @@ export function successResponse<T = any>(
     timestamp,
     ...(tz && {
       timezone: {
-        timeLocal: toLocalISOString(timestamp, tz.toUpperCase()),
         offsetZone: tz.toUpperCase(),
+        timeLocal: toLocalISOString(timestamp, tz.toUpperCase()),
       },
     }),
   };
