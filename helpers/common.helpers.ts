@@ -1,5 +1,11 @@
 import { randomBytes } from 'crypto';
 import { HttpException, HttpStatus } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
+
+interface RateLimitOptions {
+  limit?: number;
+  ttl?: number;
+}
 
 export interface ApiResponse<T = any> {
   statusCode: number | string;
@@ -128,4 +134,16 @@ export function toLocalISOString(utcIso: string, tz: string): string {
   const local = new Date(utcDate.getTime() + offset * 60 * 60 * 1000);
 
   return local.toISOString().replace('T', ' ').substring(0, 19);
+}
+
+export function RateLimit(options?: RateLimitOptions): MethodDecorator {
+  const limit = options?.limit ?? parseInt(process.env.COUNT_HIT ?? '5', 10);
+  const ttl = options?.ttl ?? parseInt(process.env.RATE_LIMIT_TTL ?? '60000', 10);
+
+  return Throttle({
+    default: {
+      limit,
+      ttl,
+    },
+  });
 }
