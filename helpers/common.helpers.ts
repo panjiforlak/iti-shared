@@ -17,11 +17,6 @@ export interface ApiResponse<T = any> {
   [key: string]: any; // untuk extra fields
 }
 
-/** ----------------------------- Public Functions ----------------------------- */
-
-/**
- * Generate unique transaction ID
- */
 export function generateTrxId(prefix = 'ITI'): string {
   const now = new Date();
   const pad = (n: number) => n.toString().padStart(2, '0');
@@ -40,9 +35,6 @@ export function generateTrxId(prefix = 'ITI'): string {
   return `${prefix}${mode}${dateStr}${random}`;
 }
 
-/**
- * Standard success response
- */
 export function successResponse<T = any>(
   data: T,
   message = 'Retrieve data success',
@@ -64,9 +56,6 @@ export function successResponse<T = any>(
   };
 }
 
-/**
- * Standard error response (optional throw)
- */
 export function errorResponse(
   message = 'Error',
   statusCode = HttpStatus.BAD_REQUEST,
@@ -81,9 +70,6 @@ export function errorResponse(
   };
 }
 
-/**
- * Paginated response
- */
 export function paginateResponse<T = any>(
   data: T[],
   total: number,
@@ -107,9 +93,6 @@ export function paginateResponse<T = any>(
   };
 }
 
-/**
- * Throw HttpException with trxId
- */
 export function throwError(
   message = 'Bad Request',
   source = '',

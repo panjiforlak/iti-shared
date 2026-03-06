@@ -60,7 +60,7 @@ export class LoggerInterceptor implements NestInterceptor {
             error: error?.response?.message || error.message,
           },
 
-          `${toCustomUpperCase(source)}:||:${toCustomUpperCase(context)}`, // dipakai cuma untuk log
+          `${toCustomUpperCase(source)}::${toCustomUpperCase(context)}`, // dipakai cuma untuk log
         );
 
         return throwError(() => error);
