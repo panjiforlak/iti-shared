@@ -15,7 +15,6 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
     const trxId = (request.headers['x-transaction-id'] as string) || generateTrxId();
 
-    // 👇 HANDLE THROTTLER DI SINI
     if (exception instanceof ThrottlerException) {
       return response.status(429).json({
         statusCode: 429,
@@ -31,7 +30,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
       statusCode: payload.statusCode || status,
       message: payload.message || 'Error',
       data: payload.data || { error: true },
-      trxId,
+      trxId: request.headers['x-transaction-id'] || 'blank-trx-id',
     });
   }
 }
