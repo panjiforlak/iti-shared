@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package master;
+
+service MasterService {
+  rpc GetCategory (CategoryRequest) returns (CategoryResponse);
+}
+
+message CategoryRequest {
+  int32 id = 1;
+}
+
+message CategoryResponse {
+  int32 id = 1;
+  string name = 2;
+}
