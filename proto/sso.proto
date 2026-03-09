@@ -4,6 +4,7 @@ package sso;
 
 service UserService {
   rpc GetUser (UserRequest) returns (UserResponse);
+  rpc GetUsers (Empty) returns (UsersResponse);
 }
 
 message UserRequest {
@@ -13,4 +14,8 @@ message UserRequest {
 message UserResponse {
   int32 id = 1;
   string name = 2;
+}
+
+message UsersResponse {
+  repeated UserResponse users = 1;
 }
