@@ -7,6 +7,8 @@ service UserService {
   rpc GetUsers (Empty) returns (UsersResponse);
 }
 
+message Empty {}
+
 message UserRequest {
   int32 id = 1;
 }
