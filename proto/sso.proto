@@ -18,6 +18,8 @@ message UserResponse {
   string full_name = 2;
   string email = 3;
   string username = 4;
+  string password = 5;
+  string is_active = 6;
 }
 
 message UsersResponse {
