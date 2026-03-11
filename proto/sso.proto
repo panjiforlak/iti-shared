@@ -15,7 +15,7 @@ message UserRequest {
 
 message UserResponse {
   int32 id = 1;
-  string name = 2;
+  string full_name = 2;
   string email = 3;
   string username = 4;
   string password = 5;
