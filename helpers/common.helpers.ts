@@ -1,6 +1,7 @@
 import { randomBytes } from 'crypto';
 import { HttpException, HttpStatus } from '@nestjs/common';
 import { Throttle } from '@nestjs/throttler';
+import { PinoLogger } from 'nestjs-pino';
 
 interface RateLimitOptions {
   limit?: number;
@@ -146,4 +147,43 @@ export function RateLimit(options?: RateLimitOptions): MethodDecorator {
       ttl,
     },
   });
+}
+export class CustomHttpException extends HttpException {
+  constructor(
+    public message: string,
+    public source: string,
+    public context: string,
+    public statusCode = HttpStatus.BAD_REQUEST,
+    public extra?: Record<string, any>,
+  ) {
+    super(
+      {
+        statusCode,
+        message,
+        error: true,
+        timestamp: new Date().toISOString(),
+        ...extra,
+        source,
+        context,
+      },
+      statusCode,
+    );
+  }
+}
+
+export function mapGrpcError(error: any) {
+  const errorMap: Record<number, { message: string; status: number }> = {
+    3: { message: 'Invalid request parameter', status: 400 },
+    5: { message: 'Resource not found', status: 404 },
+    7: { message: 'Permission denied', status: 403 },
+    13: { message: 'Internal service error', status: 500 },
+    14: { message: 'Service unavailable', status: 503 },
+  };
+
+  return (
+    errorMap[error?.code] || {
+      message: error?.message || 'Unexpected service error',
+      status: 500,
+    }
+  );
 }
